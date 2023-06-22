@@ -1,0 +1,59 @@
+﻿@page "/viewjson"
+@using System.Text.Json;
+
+<div class="container-fluid font-monospace" >
+
+    <div class="row">
+        <div class="col">
+            <span class="input-group-text">Raw JSON</span>
+        </div>
+
+        <div class="col">
+            <span class="input-group-text">Formatted JSON</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <textarea class="form-control w-100 vh-100" type="text" placeholder="Paste JSON here" @oninput="UpdateText" />
+        </div>
+
+        <div class="col">
+            <textarea class="w-100 vh-100" style="white-space:pre" type="text" readonly="readonly">@FormattedText</textarea>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private string? FormattedText { get; set; }
+
+    void UpdateText(ChangeEventArgs e)
+    {
+        if (e.Value is string value)
+        {
+            SetFormattedText(value);
+        }
+    }
+
+    void SetFormattedText(string? value)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(value) == false)
+            {
+                using var doc = JsonDocument.Parse(value, new System.Text.Json.JsonDocumentOptions());
+
+                FormattedText = JsonSerializer.Serialize(doc, new JsonSerializerOptions { WriteIndented = true });
+            }
+            else
+            {
+                FormattedText = string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            FormattedText = ex.Message;
+        }
+    }
+}
